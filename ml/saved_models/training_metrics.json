@@ -1,0 +1,97 @@
+{
+  "best_model": "Logistic Regression",
+  "selection_criterion": "test ROC-AUC, F1 tie-break",
+  "classification": [
+    {
+      "model": "Logistic Regression",
+      "accuracy": 0.7633333333333333,
+      "precision": 0.7310344827586207,
+      "recall": 0.7681159420289855,
+      "f1": 0.7491166077738516,
+      "roc_auc": 0.8577115763106101,
+      "confusion_matrix": [
+        [
+          123,
+          39
+        ],
+        [
+          32,
+          106
+        ]
+      ],
+      "cv_roc_auc_mean": 0.8951176533502115,
+      "cv_roc_auc_std": 0.030564961063776767
+    },
+    {
+      "model": "Decision Tree",
+      "accuracy": 0.72,
+      "precision": 0.6730769230769231,
+      "recall": 0.7608695652173914,
+      "f1": 0.7142857142857143,
+      "roc_auc": 0.7999418500626231,
+      "confusion_matrix": [
+        [
+          111,
+          51
+        ],
+        [
+          33,
+          105
+        ]
+      ],
+      "cv_roc_auc_mean": 0.8315795522307152,
+      "cv_roc_auc_std": 0.032856300085581006
+    },
+    {
+      "model": "Random Forest",
+      "accuracy": 0.7833333333333333,
+      "precision": 0.7664233576642335,
+      "recall": 0.7608695652173914,
+      "f1": 0.7636363636363637,
+      "roc_auc": 0.852701735551977,
+      "confusion_matrix": [
+        [
+          130,
+          32
+        ],
+        [
+          33,
+          105
+        ]
+      ],
+      "cv_roc_auc_mean": 0.8873152020128764,
+      "cv_roc_auc_std": 0.025739402922128507
+    },
+    {
+      "model": "XGBoost",
+      "accuracy": 0.7533333333333333,
+      "precision": 0.7105263157894737,
+      "recall": 0.782608695652174,
+      "f1": 0.7448275862068966,
+      "roc_auc": 0.8343621399176955,
+      "confusion_matrix": [
+        [
+          118,
+          44
+        ],
+        [
+          30,
+          108
+        ]
+      ],
+      "cv_roc_auc_mean": 0.8772907931512582,
+      "cv_roc_auc_std": 0.023719209043167155
+    }
+  ],
+  "package_regression": {
+    "model": "Ridge Regression",
+    "mae": 0.7019527369478852,
+    "r2": 0.46036753006084496,
+    "n_placed": 690
+  },
+  "notes": [
+    "Preprocessor was fitted in preprocessing.py before the train/test split.",
+    "This leaks a small amount of scale/encoding information from the test fold.",
+    "Acceptable for this academic demo; later phases can refit on train only."
+  ]
+}
