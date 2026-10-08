@@ -59,18 +59,35 @@ class ShapFactor(BaseModel):
     feature: str
     contribution: float
     direction: Literal["positive", "negative"]
+    explanation: str = ""
+
+
+class WeekPlan(BaseModel):
+    week: int
+    title: str
+    focus: list[str]
+    tasks: list[str]
 
 
 class PlacementPredictionResponse(BaseModel):
     placement_probability: float
     placement_status: Literal["High", "Medium", "Low"]
+    placed: bool = False
     confidence: float
+    readiness_index: float = 0.0
     predicted_package_lpa: float | None = None
     package_range: str | None = None
+    ats_score: float = 0.0
+    present_keywords: list[str] = []
+    missing_keywords: list[str] = []
     key_strengths: list[str]
     areas_to_improve: list[str]
     shap_factors: list[ShapFactor]
+    recommendations: list["CareerRoleMatch"] = []
+    student_skills: list[str] = []
+    week_roadmap: list[WeekPlan] = []
     model_loaded: bool = True
+    model_name: str | None = None
 
 
 class CareerRoleMatch(BaseModel):
@@ -121,3 +138,14 @@ class HealthResponse(BaseModel):
     placement_model_loaded: bool
     package_model_loaded: bool
     preprocessor_loaded: bool
+    career_model_loaded: bool = False
+
+
+class DemoProfile(BaseModel):
+    key: str
+    label: str
+    summary: str
+    payload: StudentAssessmentInput
+
+
+PlacementPredictionResponse.model_rebuild()

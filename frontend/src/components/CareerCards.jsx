@@ -4,7 +4,7 @@ import { Briefcase, Check, Minus } from "lucide-react";
 export default function CareerCards({ recommendations = [], onSelect }) {
   if (!recommendations.length) {
     return (
-      <div className="card p-5">
+      <div className="glass p-5">
         <h3 className="font-display text-lg">Career matches</h3>
         <p className="mt-2 text-sm text-slate-400">Submit an assessment to rank career tracks.</p>
       </div>
@@ -21,7 +21,7 @@ export default function CareerCards({ recommendations = [], onSelect }) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.08 }}
-          className="card p-5 text-left transition hover:border-indigo-400/50"
+          className="glass flex h-full flex-col p-5"
         >
           <div className="mb-3 flex items-center justify-between">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/20 text-indigo-300">

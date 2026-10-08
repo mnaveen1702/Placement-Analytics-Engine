@@ -28,7 +28,7 @@ export default function AiAdvisorChat() {
   };
 
   return (
-    <div className="card flex h-full flex-col p-5">
+    <div className="glass flex h-full flex-col p-5">
       <div className="mb-3 flex items-center gap-2">
         <Bot className="h-5 w-5 text-indigo-300" />
         <div>

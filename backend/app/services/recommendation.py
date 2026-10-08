@@ -91,7 +91,7 @@ class CareerTrack:
 
 CAREER_TRACKS: tuple[CareerTrack, ...] = (
     CareerTrack(
-        "Software Developer",
+        "Software Engineer",
         ("Python", "Java", "DSA", "Git", "SQL", "REST APIs", "Problem Solving"),
         ("DSA", "Git", "Problem Solving"),
         ("Build a CRUD app with tests", "Contribute to an open-source repo"),
@@ -121,6 +121,22 @@ CAREER_TRACKS: tuple[CareerTrack, ...] = (
         ("Deploy a full-stack app", "Add CI and a production database"),
         ("Full-stack web development", "Cloud fundamentals"),
         ("coding_score", "number_of_projects", "technical_score"),
+    ),
+    CareerTrack(
+        "Data Engineer",
+        ("Python", "SQL", "PostgreSQL", "Linux", "Docker", "Data Analysis"),
+        ("SQL", "Python", "Docker"),
+        ("Build a batch ETL pipeline", "Model a warehouse star schema"),
+        ("SQL + Spark fundamentals", "Cloud data fundamentals"),
+        ("technical_score", "coding_score", "dsa_score"),
+    ),
+    CareerTrack(
+        "System Architect",
+        ("REST APIs", "SQL", "Docker", "Linux", "AWS", "Problem Solving", "Git"),
+        ("REST APIs", "AWS", "Problem Solving"),
+        ("Design a high-level architecture diagram for a campus app", "Document trade-offs for scaling"),
+        ("System design primer", "Cloud architecture essentials"),
+        ("technical_score", "communication_score", "number_of_projects"),
     ),
     CareerTrack(
         "Data Analyst",

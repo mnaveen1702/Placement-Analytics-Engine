@@ -21,7 +21,7 @@ export default function SkillGapChart({ form, targetCareer }) {
   ];
 
   return (
-    <div className="card p-5">
+    <div className="glass p-5">
       <h3 className="font-display text-lg">Skill gap vs role benchmark</h3>
       <p className="mb-2 text-sm text-slate-400">
         Your scores compared with typical entry-level expectations

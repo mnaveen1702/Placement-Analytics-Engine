@@ -14,15 +14,17 @@ from backend.app.database.connection import get_db, init_db
 from backend.app.schemas.schemas import (
     AdvisorResponse,
     CareerMatchResponse,
+    DemoProfile,
     HealthResponse,
     PlacementPredictionResponse,
     SkillGapResponse,
     StudentAssessmentInput,
 )
+from backend.app.services.demo import DEMO_PROFILES
 from backend.app.services.llm_advisor import generate_llm_guidance
 from backend.app.services.persistence import save_assessment
 from backend.app.services.predictor import predict_placement, registry
-from backend.app.services.recommendation import recommend_careers, skill_gap_for_career
+from backend.app.services.recommendation import CAREER_TRACKS, recommend_careers, skill_gap_for_career
 
 logger = logging.getLogger(__name__)
 
@@ -30,20 +32,20 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     init_db()
-    registry.load()
+    registry.load(auto_train=True)
     yield
 
 
 app = FastAPI(
     title="PlacePath AI",
-    description="Placement prediction, career recommendation, and LLM guidance.",
-    version="1.0.0",
+    description="Placement prediction, career recommendation, ATS scoring, and guidance.",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=list({*settings.cors_origins, "http://localhost:5173", "http://127.0.0.1:5173"}),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -53,28 +55,52 @@ app.add_middleware(
 @app.get("/api/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     registry.ensure_loaded()
+    if not registry.ready:
+        registry.load(auto_train=True)
     db_kind = "sqlite" if settings.database_url.startswith("sqlite") else "postgresql"
     return HealthResponse(
-        status="ok",
+        status="ok" if registry.ready else "degraded",
         database=db_kind,
         placement_model_loaded=registry.placement_model is not None,
         package_model_loaded=registry.package_model is not None,
         preprocessor_loaded=registry.preprocessor is not None,
+        career_model_loaded=registry.career_model is not None,
     )
+
+
+@app.get("/api/demo-data", response_model=list[DemoProfile])
+def demo_data() -> list[DemoProfile]:
+    return DEMO_PROFILES
+
+
+@app.get("/api/career-roles")
+def career_roles() -> dict:
+    return {
+        "roles": [
+            {
+                "name": track.name,
+                "required_skills": list(track.required_skills),
+                "high_importance": list(track.high_importance),
+            }
+            for track in CAREER_TRACKS
+        ]
+    }
 
 
 @app.post("/api/predict", response_model=PlacementPredictionResponse)
 def predict(payload: StudentAssessmentInput, db: Session = Depends(get_db)) -> PlacementPredictionResponse:
     try:
         result = predict_placement(payload)
-    except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001
         logger.exception("Prediction failed")
         raise HTTPException(status_code=500, detail=f"Prediction failed: {exc}") from exc
 
     try:
-        save_assessment(db, payload, result, None)
+        rec = CareerMatchResponse(
+            recommendations=result.recommendations or [],
+            student_skills=result.student_skills or [],
+        )
+        save_assessment(db, payload, result, rec)
     except Exception:
         logger.exception("Could not persist prediction; returning live result anyway.")
         db.rollback()
@@ -93,10 +119,7 @@ def skill_gap(payload: StudentAssessmentInput) -> SkillGapResponse:
 
 @app.post("/api/ai-advisor", response_model=AdvisorResponse)
 def ai_advisor(payload: StudentAssessmentInput) -> AdvisorResponse:
-    try:
-        prediction = predict_placement(payload)
-    except RuntimeError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    prediction = predict_placement(payload)
     careers = recommend_careers(payload)
     return generate_llm_guidance(payload, prediction, careers)
 
@@ -109,6 +132,7 @@ def model_info() -> dict:
         "placement_model_loaded": registry.placement_model is not None,
         "package_model_loaded": registry.package_model is not None,
         "preprocessor_loaded": registry.preprocessor is not None,
+        "career_model_loaded": registry.career_model is not None,
         "placement_model_type": type(registry.placement_model).__name__
         if registry.placement_model
         else None,

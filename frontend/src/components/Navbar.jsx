@@ -18,11 +18,11 @@ export default function Navbar() {
       .catch(() => setHealth({ status: "offline" }));
   }, []);
 
-  const online = health?.status === "ok";
+  const online = health?.status === "ok" || health?.placement_model_loaded;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-ink-950/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
+    <header className="no-print sticky top-0 z-30 border-b border-slate-800/80 bg-[#0b0f19]/80 backdrop-blur-xl">
+      <div className="flex w-full items-center justify-between gap-4 px-4 py-3 md:px-8">
         <button
           type="button"
           onClick={() => setPage("form")}
@@ -47,7 +47,7 @@ export default function Navbar() {
               onClick={() => setPage(id)}
               className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm transition ${
                 page === id
-                  ? "bg-indigo-500 text-white"
+                  ? "bg-cyan-500 text-slate-950"
                   : "text-slate-300 hover:bg-white/5"
               }`}
             >
@@ -64,7 +64,7 @@ export default function Navbar() {
               type="button"
               onClick={() => setPage(id)}
               className={`rounded-full px-3 py-1.5 text-xs ${
-                page === id ? "bg-indigo-500 text-white" : "text-slate-300"
+                page === id ? "bg-cyan-500 text-slate-950" : "text-slate-300"
               }`}
             >
               {label}

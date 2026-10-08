@@ -2,12 +2,17 @@ import axios from "axios";
 
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_BASE || "",
-  timeout: 45000,
+  timeout: 90000,
   headers: { "Content-Type": "application/json" },
 });
 
 export async function getHealth() {
   const { data } = await client.get("/api/health");
+  return data;
+}
+
+export async function getDemoData() {
+  const { data } = await client.get("/api/demo-data");
   return data;
 }
 
@@ -27,9 +32,9 @@ export async function askAdvisor(payload) {
 }
 
 export function getErrorMessage(error) {
-  return (
-    error?.response?.data?.detail ||
-    error?.message ||
-    "Request failed. Confirm the FastAPI server is running on port 8000."
-  );
+  const detail = error?.response?.data?.detail;
+  if (Array.isArray(detail)) {
+    return detail.map((item) => item.msg || JSON.stringify(item)).join("; ");
+  }
+  return detail || error?.message || "Request failed. Is the API running on port 8000?";
 }

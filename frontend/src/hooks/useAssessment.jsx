@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState } from "react";
-import { askAdvisor, getErrorMessage, predictPlacement, recommendCareers } from "../services/api";
+import { askAdvisor, getErrorMessage, predictPlacement } from "../services/api";
 import { emptyForm, toPayload } from "../utils/formDefaults";
 
 const AssessmentContext = createContext(null);
@@ -8,14 +8,11 @@ export function AssessmentProvider({ children }) {
   const [page, setPage] = useState("form");
   const [form, setForm] = useState(emptyForm);
   const [prediction, setPrediction] = useState(null);
-  const [careers, setCareers] = useState(null);
   const [advisor, setAdvisor] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const updateField = (key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
+  const updateField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
   const toggleListValue = (key, value) => {
     setForm((prev) => {
@@ -32,19 +29,25 @@ export function AssessmentProvider({ children }) {
     setError("");
     const payload = toPayload({ ...form, question });
     try {
-      const [pred, rec] = await Promise.all([
-        predictPlacement(payload),
-        recommendCareers(payload),
-      ]);
+      const pred = await predictPlacement(payload);
       setPrediction(pred);
-      setCareers(rec);
-      const advice = await askAdvisor({ ...payload, question: question || payload.question });
-      setAdvisor(advice);
+      try {
+        const advice = await askAdvisor({ ...payload, question: question || null });
+        setAdvisor(advice);
+      } catch {
+        setAdvisor({
+          guidance: pred.areas_to_improve?.[0]
+            ? `Focus first on: ${pred.areas_to_improve[0]}`
+            : "Review the 4-week roadmap on the dashboard.",
+          roadmap: [],
+          source: "template_fallback",
+        });
+      }
       setPage("dashboard");
-      return { pred, rec, advice };
+      return pred;
     } catch (err) {
       setError(getErrorMessage(err));
-      throw err;
+      return null;
     } finally {
       setLoading(false);
     }
@@ -72,7 +75,7 @@ export function AssessmentProvider({ children }) {
       form,
       setForm,
       prediction,
-      careers,
+      careers: prediction ? { recommendations: prediction.recommendations || [] } : null,
       advisor,
       loading,
       error,
@@ -82,7 +85,7 @@ export function AssessmentProvider({ children }) {
       runAnalysis,
       refreshAdvisor,
     }),
-    [page, form, prediction, careers, advisor, loading, error]
+    [page, form, prediction, advisor, loading, error]
   );
 
   return <AssessmentContext.Provider value={value}>{children}</AssessmentContext.Provider>;
