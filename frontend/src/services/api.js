@@ -31,6 +31,15 @@ export async function askAdvisor(payload) {
   return data;
 }
 
+export async function parseResume(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await client.post("/api/parse-resume", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
 export function getErrorMessage(error) {
   const detail = error?.response?.data?.detail;
   if (Array.isArray(detail)) {

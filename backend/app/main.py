@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
@@ -25,6 +25,7 @@ from backend.app.services.llm_advisor import generate_llm_guidance
 from backend.app.services.persistence import save_assessment
 from backend.app.services.predictor import predict_placement, registry
 from backend.app.services.recommendation import CAREER_TRACKS, recommend_careers, skill_gap_for_career
+from backend.app.services.resume_parser import parse_resume_pdf
 
 logger = logging.getLogger(__name__)
 
@@ -137,3 +138,22 @@ def model_info() -> dict:
         if registry.placement_model
         else None,
     }
+
+
+@app.post("/api/parse-resume")
+async def parse_resume(file: UploadFile = File(...)) -> dict:
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files (.pdf) are supported.")
+
+    try:
+        content = await file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Uploaded PDF file is empty.")
+        metrics = parse_resume_pdf(content)
+        return {"status": "success", "filename": file.filename, "data": metrics}
+    except ValueError as val_err:
+        raise HTTPException(status_code=400, detail=str(val_err)) from val_err
+    except Exception as exc:
+        logger.exception("Error parsing resume PDF")
+        raise HTTPException(status_code=500, detail=f"Failed to parse resume PDF: {exc}") from exc
+

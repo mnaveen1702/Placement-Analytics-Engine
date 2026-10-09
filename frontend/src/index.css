@@ -2,65 +2,172 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Color Scheme ─── */
 :root {
   color-scheme: dark;
 }
+html.dark { color-scheme: dark; }
+html:not(.dark) { color-scheme: light; }
 
-html,
-body,
-#root {
+html, body, #root {
   min-height: 100%;
 }
 
+/* ─── Body Backgrounds ─── */
 body {
-  @apply text-slate-100 antialiased;
-  background: #0b0f19;
+  @apply antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark body {
+  @apply text-slate-100;
+  background-color: #0a0f1d;
   background-image:
-    radial-gradient(900px 500px at 8% -8%, rgba(34, 211, 238, 0.12), transparent 50%),
-    radial-gradient(800px 480px at 100% 0%, rgba(99, 102, 241, 0.16), transparent 46%),
-    radial-gradient(700px 400px at 70% 100%, rgba(16, 185, 129, 0.08), transparent 50%);
+    radial-gradient(900px 500px at 8% -8%,  rgba(34, 211, 238, 0.11), transparent 50%),
+    radial-gradient(800px 480px at 100% 0%,  rgba(99, 102, 241, 0.15), transparent 46%),
+    radial-gradient(700px 400px at 70% 100%, rgba(16, 185, 129, 0.07), transparent 50%);
+  background-attachment: fixed;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+html:not(.dark) body {
+  @apply text-slate-900;
+  background-color: #f1f5f9;   /* slate-100 — clearly off-white for card contrast */
+  background-image:
+    radial-gradient(900px 500px at 8% -8%,  rgba(34, 211, 238, 0.06), transparent 50%),
+    radial-gradient(800px 480px at 100% 0%,  rgba(99, 102, 241, 0.06), transparent 46%),
+    radial-gradient(700px 400px at 70% 100%, rgba(16, 185, 129, 0.04), transparent 50%);
+  background-attachment: fixed;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #243044;
-  border-radius: 999px;
-}
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+html.dark      ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
+html:not(.dark)::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
 
+/* ─── Glass Surfaces ─── */
 .glass {
-  @apply rounded-2xl border border-slate-800/80 bg-slate-900/60 shadow-[0_0_40px_rgba(14,165,233,0.08)] backdrop-blur-xl;
+  @apply rounded-2xl backdrop-blur-xl transition-all duration-300;
+}
+html.dark .glass {
+  @apply border border-slate-700/60 bg-[#0d1322]/85;
+  box-shadow: 0 8px 32px 0 rgba(0,0,0,0.45), inset 0 1px 1px 0 rgba(255,255,255,0.08);
+}
+html.dark .glass:hover {
+  @apply border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.15)];
+}
+html:not(.dark) .glass {
+  @apply border border-slate-200 bg-white;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.06), inset 0 1px 1px 0 rgba(255,255,255,0.9);
+}
+html:not(.dark) .glass:hover {
+  @apply border-cyan-500/40 shadow-[0_6px_24px_rgba(6,182,212,0.08)];
 }
 
+.glass-card {
+  @apply rounded-2xl backdrop-blur-xl transition-all duration-300;
+}
+html.dark .glass-card {
+  @apply border border-slate-800/80 bg-slate-900/90;
+}
+html.dark .glass-card:hover {
+  @apply border-cyan-500/50 shadow-[0_0_25px_rgba(6,182,212,0.15)] -translate-y-0.5;
+}
+html:not(.dark) .glass-card {
+  @apply border border-slate-200 bg-white;
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,0.05);
+}
+html:not(.dark) .glass-card:hover {
+  @apply border-cyan-400/50 shadow-[0_4px_20px_rgba(0,0,0,0.07)] -translate-y-0.5;
+}
+
+/* ─── Chip ─── */
 .chip {
-  @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
+  @apply inline-flex items-center rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-200;
 }
 
-input,
-select,
-textarea {
-  @apply w-full rounded-xl border border-slate-800 bg-[#090d16] px-3 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-400/70 focus:ring-2 focus:ring-cyan-500/20;
+/* ─── Form Controls — high contrast in both modes ─── */
+input, select, textarea {
+  @apply w-full rounded-xl px-4 py-3 text-base font-medium outline-none transition;
+  @apply focus:ring-2 focus:ring-cyan-500/30;
 }
 
+html.dark input,
+html.dark select,
+html.dark textarea {
+  @apply border border-slate-700/70 bg-[#090d16] text-slate-100 placeholder:text-slate-500 focus:border-cyan-400;
+}
+
+html:not(.dark) input,
+html:not(.dark) select,
+html:not(.dark) textarea {
+  @apply border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:border-cyan-600;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.04);
+}
+
+/* Range slider */
 input[type="range"] {
-  @apply h-2 cursor-pointer appearance-none rounded-full bg-slate-800 px-0 py-0 accent-cyan-400;
+  @apply h-2.5 cursor-pointer appearance-none rounded-full px-0 py-0 accent-cyan-500;
+  border: none !important;
+  box-shadow: none !important;
+  background: none;
 }
+html.dark      input[type="range"] { @apply bg-slate-800; }
+html:not(.dark) input[type="range"] { @apply bg-slate-200; }
 
+/* ─── Labels ─── */
 label {
-  @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-slate-400;
+  @apply mb-2 block text-sm font-bold uppercase tracking-wider transition-colors duration-200;
+}
+html.dark      label { @apply text-slate-300; }
+html:not(.dark) label { @apply text-slate-700; }
+
+/* ─── Gradients ─── */
+.heading-gradient {
+  @apply bg-clip-text text-transparent font-extrabold;
+  background-image: linear-gradient(to right, #22d3ee, #38bdf8, #818cf8);
+}
+html:not(.dark) .heading-gradient {
+  background-image: linear-gradient(to right, #0891b2, #0284c7, #4f46e5);
 }
 
+.metric-gradient {
+  @apply bg-clip-text text-transparent font-extrabold;
+  background-image: linear-gradient(to right, #22d3ee, #7dd3fc, #a5b4fc);
+}
+html:not(.dark) .metric-gradient {
+  background-image: linear-gradient(to right, #0891b2, #0284c7, #4338ca);
+}
+
+/* ─── Buttons ─── */
+.btn-glowing {
+  @apply relative inline-flex items-center justify-center gap-2 rounded-xl font-bold text-white transition-all duration-300;
+  @apply bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600;
+  @apply shadow-[0_4px_20px_rgba(6,182,212,0.35)];
+  @apply hover:shadow-[0_6px_28px_rgba(6,182,212,0.55)] hover:-translate-y-0.5;
+  @apply active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.btn-glowing-secondary {
+  @apply inline-flex items-center justify-center gap-2.5 rounded-xl font-bold transition-all duration-300;
+  @apply hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:pointer-events-none;
+}
+html.dark .btn-glowing-secondary {
+  @apply border border-slate-700/80 bg-slate-800/80 text-slate-200;
+  @apply hover:border-cyan-500/60 hover:bg-slate-700/80 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)];
+}
+html:not(.dark) .btn-glowing-secondary {
+  @apply border border-slate-300 bg-white text-slate-800;
+  @apply hover:border-cyan-500/60 hover:bg-slate-50 hover:shadow-[0_2px_15px_rgba(6,182,212,0.12)];
+}
+
+/* ─── Enterprise Card ─── */
+.card-dark  { @apply rounded-2xl border border-slate-800/80 bg-[#0d1424]/90 transition-all duration-300; }
+.card-light { @apply rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-200/60 transition-all duration-300; }
+
+/* ─── Print ─── */
 @media print {
-  body {
-    background: white !important;
-    color: #0f172a !important;
-  }
-  .no-print {
-    display: none !important;
-  }
+  body { background: white !important; color: #0f172a !important; }
+  .no-print { display: none !important; }
   .glass {
     box-shadow: none !important;
     border: 1px solid #cbd5e1 !important;
