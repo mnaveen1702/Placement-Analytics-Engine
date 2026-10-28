@@ -47,8 +47,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://placement-analytics-engine.vercel.app",
+        *settings.cors_origins,
         "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://placement-analytics-engine-dpeg.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
