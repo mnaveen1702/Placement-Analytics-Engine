@@ -4,6 +4,7 @@ import axios from "axios";
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_BASE || "",
   timeout: 90000,
+  headers: { "Content-Type": "application/json" },
 });
 
 // Health check
@@ -48,6 +49,8 @@ export async function parseResume(file) {
 
   return data;
 }
+
+
 
 // Error message handler
 export function getErrorMessage(error) {
