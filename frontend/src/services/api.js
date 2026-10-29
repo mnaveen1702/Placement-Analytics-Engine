@@ -1,10 +1,25 @@
 
 import axios from "axios";
 
+// VITE_API_BASE must be set to the backend URL in production:
+//   https://placement-analytics-engine-1.onrender.com
+// Without it, requests fall back to the same origin (Vercel) and 404.
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_BASE || "",
   timeout: 90000,
-  headers: { "Content-Type": "application/json" },
+  // NOTE: Do NOT set a global Content-Type here.
+  // Axios must be free to auto-set multipart/form-data (with boundary) for
+  // FormData uploads.  A hardcoded application/json default would override
+  // that and cause FastAPI to return HTTP 422 for /api/parse-resume.
+});
+
+// Request interceptor: when the body is FormData, remove any Content-Type
+// header so the browser sets the correct multipart/form-data boundary.
+client.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+  return config;
 });
 
 // Health check
@@ -37,15 +52,13 @@ export async function askAdvisor(payload) {
   return data;
 }
 
-// Resume PDF upload
+// Resume PDF upload — sends the actual File object via multipart/form-data.
+// The field name "file" matches the FastAPI UploadFile parameter.
 export async function parseResume(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const { data } = await client.post(
-    "/api/parse-resume",
-    formData
-  );
+  const { data } = await client.post("/api/parse-resume", formData);
 
   return data;
 }
